@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Xamarin.Forms;
 
@@ -60,8 +61,8 @@ namespace FormsPinView.Core
         public int PinLength
         {
             get { return (int)GetValue(PinLengthProperty); }
-            set 
-            { 
+            set
+            {
                 if ((int)value <= 0)
                 {
                     throw new ArgumentException("TargetPinLength must be a positive value");
@@ -257,7 +258,7 @@ namespace FormsPinView.Core
         /// </summary>
         public Command<string> KeyPressedCommand
             => _keyPressedCommand = _keyPressedCommand
-            ?? new Command<string>(arg =>
+            ?? new Command<string>(async (arg) =>
             {
                 if (Validator == null)
                 {
@@ -277,14 +278,19 @@ namespace FormsPinView.Core
                     EnteredPin.Add(arg[0]);
                     if (EnteredPin.Count == PinLength)
                     {
+                        // fill the last PIN symbol image
+                        UpdateDisplayedText(resetUI: false);
+                        await Task.Delay(300);
+
                         if (Validator.Invoke(EnteredPin))
                         {
                             if (ClearAfterSuccess)
                             {
                                 EnteredPin.Clear();
                             }
-                            // fill the last PIN symbol image
+
                             UpdateDisplayedText(resetUI: false);
+
                             // Raise Success event
                             RaiseSuccess();
                         }
@@ -311,7 +317,7 @@ namespace FormsPinView.Core
         /// </summary>
         public PinView()
         {
-            var items = new []
+            var items = new[]
             {
                 new []
                 {
@@ -350,7 +356,7 @@ namespace FormsPinView.Core
                 },
                 bounds: new Rectangle(0, 0, 1, CellHeight),
                 flags: AbsoluteLayoutFlags.WidthProportional);
-            
+
             for (int i = 0; i < items.Length; i++)
             {
                 for (int j = 0; j < items[i].Length; j++)
@@ -441,7 +447,7 @@ namespace FormsPinView.Core
 
             if (error != null)
                 error.Invoke(this, EventArgs.Empty);
-            
+
             if (errorCommand != null && errorCommand.CanExecute(null))
             {
                 errorCommand.Execute(null);
