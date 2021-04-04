@@ -1,6 +1,6 @@
 ﻿using Android.Graphics.Drawables;
-using Android.Support.V4.Content.Res;
 using Android.Widget;
+using AndroidX.Core.Content.Resources;
 using FormsPinView.Core;
 using FormsPinView.Droid;
 using Xamarin.Forms;
