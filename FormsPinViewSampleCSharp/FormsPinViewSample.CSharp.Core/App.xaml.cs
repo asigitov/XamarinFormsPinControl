@@ -13,7 +13,8 @@ namespace FormsPinViewSample.Core
             InitializeComponent();
             var rootPage = new NavigationPage(new MainPage());
             var nextPage = new PinAuthPage();
-            rootPage.Navigation.PushAsync(nextPage);
+            var setModePage = new PinViewSetMode();
+            rootPage.Navigation.PushAsync(setModePage);
             base.MainPage = rootPage;
         }
 

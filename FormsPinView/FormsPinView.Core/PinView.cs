@@ -9,7 +9,7 @@ namespace FormsPinView.Core
     /// <summary>
     /// The PIN view.
     /// </summary>
-    public class PinView : AbsoluteLayout
+    public partial class PinView : AbsoluteLayout
     {
         #region Fields and properties
 
@@ -47,6 +47,8 @@ namespace FormsPinView.Core
         #endregion
 
         #region Bindable properties
+
+
 
         public static readonly BindableProperty PinLengthProperty =
             BindableProperty.Create(propertyName: nameof(PinLength),
@@ -260,7 +262,7 @@ namespace FormsPinView.Core
             => _keyPressedCommand = _keyPressedCommand
             ?? new Command<string>(async (arg) =>
             {
-                if (Validator == null)
+                if (Mode == Mode.Default && Validator == null)
                 {
                     throw new InvalidOperationException($"{nameof(Validator)} is not set");
                 }
@@ -281,8 +283,8 @@ namespace FormsPinView.Core
                         // fill the last PIN symbol image
                         UpdateDisplayedText(resetUI: false);
                         await Task.Delay(300);
-
-                        if (Validator.Invoke(EnteredPin))
+                        
+                        if (Mode == Mode.Default ? Validator.Invoke(EnteredPin) : Validate(EnteredPin))
                         {
                             if (ClearAfterSuccess)
                             {
@@ -442,15 +444,22 @@ namespace FormsPinView.Core
                              this.TranslationX = 0;
                          });
 
-            var error = Error;
-            var errorCommand = ErrorCommand;
-
-            if (error != null)
-                error.Invoke(this, EventArgs.Empty);
-
-            if (errorCommand != null && errorCommand.CanExecute(null))
+            if(Mode == Mode.Default)
             {
-                errorCommand.Execute(null);
+                var error = Error;
+                var errorCommand = ErrorCommand;
+
+                if (error != null)
+                    error.Invoke(this, EventArgs.Empty);
+
+                if (errorCommand != null && errorCommand.CanExecute(null))
+                {
+                    errorCommand.Execute(null);
+                }
+            }
+            else
+            {
+                OnFailure();
             }
         }
 
@@ -459,15 +468,22 @@ namespace FormsPinView.Core
         /// </summary>
         protected void RaiseSuccess()
         {
-            var success = Success;
-            var successCommand = SuccessCommand;
-
-            if (success != null)
-                success.Invoke(this, EventArgs.Empty);
-
-            if (successCommand != null && successCommand.CanExecute(null))
+            if(Mode == Mode.Default)
             {
-                successCommand.Execute(null);
+                var success = Success;
+                var successCommand = SuccessCommand;
+
+                if (success != null)
+                    success.Invoke(this, EventArgs.Empty);
+
+                if (successCommand != null && successCommand.CanExecute(null))
+                {
+                    successCommand.Execute(null);
+                }
+            }
+            else
+            {
+                OnSuccess();
             }
         }
 
